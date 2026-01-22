@@ -4,9 +4,20 @@ import { cookies } from 'next/headers'
 export async function createClient() {
   const cookieStore = await cookies()
 
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  // 環境変数が未設定の場合、プレースホルダーを使用
+  const supabaseUrl = url || 'https://placeholder.supabase.co'
+  const supabaseKey = key || 'placeholder-key'
+
+  if (!url || !key) {
+    console.warn('Supabase credentials not configured. Using placeholder values.')
+  }
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         getAll() {
