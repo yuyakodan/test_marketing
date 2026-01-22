@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+*.swp
+*.swo
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test coverage
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Miyabi AI logs (keep structure, ignore contents)
+.ai/logs/*
+!.ai/logs/.gitkeep
+.ai/parallel-reports/*
+!.ai/parallel-reports/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp

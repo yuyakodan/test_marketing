@@ -1,0 +1,69 @@
+name: PR Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR title format
+        run: |
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          if [[ ! "$PR_TITLE" =~ ^(feat|fix|docs|style|refactor|test|chore|ci|perf)(\(.+\))?:\ .+ ]]; then
+            echo "PR title must follow Conventional Commits format"
+            echo "Example: feat(scope): add new feature"
+            exit 1
+          fi
+
+      - name: Check for breaking changes
+        run: |
+          DIFF=$(git diff origin/main...HEAD --name-only)
+          if echo "$DIFF" | grep -q "package.json"; then
+            echo "::warning::package.json has been modified"
+          fi
+
+  size-label:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Calculate PR size
+        id: size
+        run: |
+          ADDITIONS=$(git diff origin/main...HEAD --numstat | awk '{sum += $1} END {print sum+0}')
+          DELETIONS=$(git diff origin/main...HEAD --numstat | awk '{sum += $2} END {print sum+0}')
+          TOTAL=$((ADDITIONS + DELETIONS))
+
+          if [ $TOTAL -lt 10 ]; then
+            echo "label=size:XS" >> $GITHUB_OUTPUT
+          elif [ $TOTAL -lt 50 ]; then
+            echo "label=size:S" >> $GITHUB_OUTPUT
+          elif [ $TOTAL -lt 200 ]; then
+            echo "label=size:M" >> $GITHUB_OUTPUT
+          elif [ $TOTAL -lt 500 ]; then
+            echo "label=size:L" >> $GITHUB_OUTPUT
+          else
+            echo "label=size:XL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add size label
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const label = '${{ steps.size.outputs.label }}';
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [label]
+            });

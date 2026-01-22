@@ -1,0 +1,61 @@
+name: Auto Label Issues
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add initial labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const title = issue.title.toLowerCase();
+            const body = (issue.body || '').toLowerCase();
+
+            const labels = ['state:pending'];
+
+            // Type detection
+            if (title.includes('bug') || title.includes('fix') || title.includes('バグ')) {
+              labels.push('type:bug');
+            } else if (title.includes('feat') || title.includes('add') || title.includes('機能')) {
+              labels.push('type:feature');
+            } else if (title.includes('doc') || title.includes('ドキュメント')) {
+              labels.push('type:docs');
+            } else if (title.includes('refactor') || title.includes('リファクタ')) {
+              labels.push('type:refactor');
+            } else if (title.includes('test') || title.includes('テスト')) {
+              labels.push('type:test');
+            }
+
+            // Category detection
+            if (body.includes('frontend') || body.includes('ui') || body.includes('フロントエンド')) {
+              labels.push('category:frontend');
+            }
+            if (body.includes('backend') || body.includes('api') || body.includes('バックエンド')) {
+              labels.push('category:backend');
+            }
+            if (body.includes('database') || body.includes('db') || body.includes('データベース')) {
+              labels.push('category:database');
+            }
+
+            // Priority detection (default to P2)
+            if (title.includes('urgent') || title.includes('critical') || title.includes('緊急')) {
+              labels.push('priority:P0-Critical');
+            } else if (title.includes('important') || title.includes('重要')) {
+              labels.push('priority:P1-High');
+            } else {
+              labels.push('priority:P2-Medium');
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: labels
+            });

@@ -1,0 +1,51 @@
+# Miyabi Configuration
+version: "1.0"
+project:
+  name: test_marketing
+  repository: yuyakodan/test_marketing
+  language: typescript
+  framework: node
+
+# Agent Configuration
+agents:
+  coordinator:
+    enabled: true
+    max_parallel: 3
+  codegen:
+    enabled: true
+    model: claude-sonnet-4
+  review:
+    enabled: true
+    auto_approve_threshold: 85
+  test:
+    enabled: true
+    coverage_threshold: 80
+  issue:
+    enabled: true
+    auto_label: true
+  pr:
+    enabled: true
+    draft_by_default: true
+  deployment:
+    enabled: true
+    auto_rollback: true
+
+# Quality Gates
+quality:
+  test_coverage: 80
+  lint_errors: 0
+  type_errors: 0
+
+# Automation Settings
+automation:
+  auto_assign: true
+  auto_label: true
+  auto_close_stale: false
+  max_issues_per_run: 5
+
+# Notification
+notification:
+  slack:
+    enabled: false
+  email:
+    enabled: false

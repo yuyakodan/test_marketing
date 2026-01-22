@@ -1,0 +1,223 @@
+# Miyabi 53 Label System
+# Based on 識学理論5原則
+
+# Priority Labels (4)
+- name: "priority:P0-Critical"
+  color: "FF0000"
+  description: "🔥 最優先・ブロッカー"
+
+- name: "priority:P1-High"
+  color: "FF6B00"
+  description: "⚠️ 高優先度"
+
+- name: "priority:P2-Medium"
+  color: "FFD700"
+  description: "📊 中優先度"
+
+- name: "priority:P3-Low"
+  color: "90EE90"
+  description: "📝 低優先度"
+
+# State Labels (7)
+- name: "state:pending"
+  color: "CCCCCC"
+  description: "📥 着手待ち"
+
+- name: "state:analyzing"
+  color: "0052CC"
+  description: "🔍 分析中"
+
+- name: "state:implementing"
+  color: "5319E7"
+  description: "🏗️ 実装中"
+
+- name: "state:reviewing"
+  color: "FBCA04"
+  description: "👀 レビュー中"
+
+- name: "state:done"
+  color: "0E8A16"
+  description: "✅ 完了"
+
+- name: "state:blocked"
+  color: "B60205"
+  description: "🔴 ブロック中"
+
+- name: "state:failed"
+  color: "D93F0B"
+  description: "🔴 失敗"
+
+# Agent Labels (7)
+- name: "agent:coordinator"
+  color: "1D76DB"
+  description: "🤖 Coordinator Agent"
+
+- name: "agent:codegen"
+  color: "1D76DB"
+  description: "🤖 CodeGen Agent"
+
+- name: "agent:review"
+  color: "1D76DB"
+  description: "🤖 Review Agent"
+
+- name: "agent:issue"
+  color: "1D76DB"
+  description: "🤖 Issue Agent"
+
+- name: "agent:pr"
+  color: "1D76DB"
+  description: "🤖 PR Agent"
+
+- name: "agent:deployment"
+  color: "1D76DB"
+  description: "🤖 Deployment Agent"
+
+- name: "agent:test"
+  color: "1D76DB"
+  description: "🤖 Test Agent"
+
+# Quality Labels (4)
+- name: "quality:excellent"
+  color: "0E8A16"
+  description: "⭐ 優秀"
+
+- name: "quality:good"
+  color: "C2E0C6"
+  description: "✅ 良好"
+
+- name: "quality:needs-improvement"
+  color: "FEF2C0"
+  description: "⚠️ 改善必要"
+
+- name: "quality:poor"
+  color: "F9D0C4"
+  description: "🔴 不良"
+
+# Type Labels (10)
+- name: "type:feature"
+  color: "A2EEEF"
+  description: "✨ 新機能"
+
+- name: "type:bug"
+  color: "D73A4A"
+  description: "🐛 バグ修正"
+
+- name: "type:refactor"
+  color: "E99695"
+  description: "🔧 リファクタリング"
+
+- name: "type:docs"
+  color: "0075CA"
+  description: "📚 ドキュメント"
+
+- name: "type:test"
+  color: "BFDADC"
+  description: "🧪 テスト"
+
+- name: "type:deployment"
+  color: "C5DEF5"
+  description: "🚀 デプロイ"
+
+- name: "type:security"
+  color: "B60205"
+  description: "🔒 セキュリティ"
+
+- name: "type:performance"
+  color: "FBCA04"
+  description: "⚡ パフォーマンス"
+
+- name: "type:chore"
+  color: "D4C5F9"
+  description: "🔨 雑務"
+
+- name: "type:ci"
+  color: "F9D0C4"
+  description: "🔄 CI/CD"
+
+# Size Labels (5)
+- name: "size:XS"
+  color: "C2E0C6"
+  description: "🔹 極小（1時間未満）"
+
+- name: "size:S"
+  color: "C2E0C6"
+  description: "🔹 小（1-4時間）"
+
+- name: "size:M"
+  color: "FEF2C0"
+  description: "🔸 中（4-8時間）"
+
+- name: "size:L"
+  color: "F9D0C4"
+  description: "🔶 大（1-3日）"
+
+- name: "size:XL"
+  color: "D73A4A"
+  description: "🔴 特大（3日以上）"
+
+# Complexity Labels (4)
+- name: "complexity:trivial"
+  color: "C2E0C6"
+  description: "📗 自明"
+
+- name: "complexity:simple"
+  color: "C2E0C6"
+  description: "📘 シンプル"
+
+- name: "complexity:moderate"
+  color: "FEF2C0"
+  description: "📙 中程度"
+
+- name: "complexity:complex"
+  color: "D73A4A"
+  description: "📕 複雑"
+
+# Category Labels (8)
+- name: "category:frontend"
+  color: "61DAFB"
+  description: "🎨 フロントエンド"
+
+- name: "category:backend"
+  color: "68A063"
+  description: "⚙️ バックエンド"
+
+- name: "category:database"
+  color: "336791"
+  description: "💾 データベース"
+
+- name: "category:api"
+  color: "FF6C37"
+  description: "🔌 API"
+
+- name: "category:infra"
+  color: "232F3E"
+  description: "☁️ インフラ"
+
+- name: "category:devops"
+  color: "2088FF"
+  description: "🛠️ DevOps"
+
+- name: "category:mobile"
+  color: "3DDC84"
+  description: "📱 モバイル"
+
+- name: "category:ai"
+  color: "FF4081"
+  description: "🧠 AI/ML"
+
+# Meta Labels (4)
+- name: "meta:duplicate"
+  color: "CFD3D7"
+  description: "重複"
+
+- name: "meta:wontfix"
+  color: "FFFFFF"
+  description: "対応しない"
+
+- name: "meta:help-wanted"
+  color: "008672"
+  description: "🙏 ヘルプ募集"
+
+- name: "meta:good-first-issue"
+  color: "7057FF"
+  description: "🌱 初心者向け"
