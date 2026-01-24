@@ -293,3 +293,109 @@ export function createMetaClient(): MetaMarketingClient {
     pageId: process.env.META_PAGE_ID,
   })
 }
+
+// Convenience wrapper class for common operations
+export class MetaMarketingAPI {
+  private client: MetaMarketingClient | null = null
+
+  private getClient(): MetaMarketingClient {
+    if (!this.client) {
+      this.client = createMetaClient()
+    }
+    return this.client
+  }
+
+  async getCampaignInsights(
+    campaignId: string,
+    since: string,
+    until: string
+  ): Promise<
+    Array<{
+      impressions: string
+      reach: string
+      clicks: string
+      spend: string
+      ctr: string
+      cpc: string
+      actions?: Array<{ action_type: string; value: string }>
+      action_values?: Array<{ action_type: string; value: string }>
+    }>
+  > {
+    const result = await this.getClient().getInsights(campaignId, {
+      timeRange: { since, until },
+    })
+    return result.data
+  }
+
+  async getAdSetInsights(
+    campaignId: string,
+    since: string,
+    until: string
+  ): Promise<
+    Array<{
+      adset_id: string
+      impressions: string
+      reach: string
+      clicks: string
+      spend: string
+    }>
+  > {
+    const result = await this.getClient().getInsights(campaignId, {
+      timeRange: { since, until },
+      level: 'adset',
+      fields: ['adset_id', 'impressions', 'reach', 'clicks', 'spend'],
+    })
+    return result.data as unknown as Array<{
+      adset_id: string
+      impressions: string
+      reach: string
+      clicks: string
+      spend: string
+    }>
+  }
+
+  async getAdInsights(
+    campaignId: string,
+    since: string,
+    until: string
+  ): Promise<
+    Array<{
+      ad_id: string
+      impressions: string
+      reach: string
+      clicks: string
+      spend: string
+      actions?: Array<{ action_type: string; value: string }>
+    }>
+  > {
+    const result = await this.getClient().getInsights(campaignId, {
+      timeRange: { since, until },
+      level: 'ad',
+      fields: ['ad_id', 'impressions', 'reach', 'clicks', 'spend', 'actions'],
+    })
+    return result.data as unknown as Array<{
+      ad_id: string
+      impressions: string
+      reach: string
+      clicks: string
+      spend: string
+      actions?: Array<{ action_type: string; value: string }>
+    }>
+  }
+
+  async pauseAd(adId: string): Promise<void> {
+    await this.getClient().updateAdStatus(adId, 'PAUSED')
+  }
+
+  async activateAd(adId: string): Promise<void> {
+    await this.getClient().updateAdStatus(adId, 'ACTIVE')
+  }
+
+  async pauseCampaign(campaignId: string): Promise<void> {
+    await this.getClient().updateCampaignStatus(campaignId, 'PAUSED')
+  }
+
+  async activateCampaign(campaignId: string): Promise<void> {
+    await this.getClient().updateCampaignStatus(campaignId, 'ACTIVE')
+  }
+}
