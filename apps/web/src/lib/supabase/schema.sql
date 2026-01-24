@@ -53,6 +53,8 @@ CREATE TABLE IF NOT EXISTS campaigns (
     end_date DATE,
     status VARCHAR(20) DEFAULT 'draft',
     meta_status VARCHAR(50),
+    bid_strategy VARCHAR(50) DEFAULT 'lowest_cost',
+    bid_amount DECIMAL(10,2),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -236,6 +238,24 @@ CREATE TABLE IF NOT EXISTS ai_reports (
     generated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- マルチチャネルメトリクス
+CREATE TABLE IF NOT EXISTS channel_metrics (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
+    channel VARCHAR(50) NOT NULL,
+    campaign_id VARCHAR(100) NOT NULL,
+    campaign_name VARCHAR(255),
+    date DATE NOT NULL,
+    impressions INTEGER DEFAULT 0,
+    clicks INTEGER DEFAULT 0,
+    conversions INTEGER DEFAULT 0,
+    spend DECIMAL(12,2) DEFAULT 0,
+    revenue DECIMAL(12,2),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(project_id, channel, campaign_id, date)
+);
+
 -- インデックス
 CREATE INDEX IF NOT EXISTS idx_metrics_combination_date ON metrics(combination_id, date);
 CREATE INDEX IF NOT EXISTS idx_conversions_combination ON conversions(combination_id);
@@ -244,6 +264,8 @@ CREATE INDEX IF NOT EXISTS idx_ad_lp_combinations_active ON ad_lp_combinations(i
 CREATE INDEX IF NOT EXISTS idx_campaigns_project ON campaigns(project_id);
 CREATE INDEX IF NOT EXISTS idx_campaigns_status ON campaigns(status);
 CREATE INDEX IF NOT EXISTS idx_landing_pages_slug ON landing_pages(slug);
+CREATE INDEX IF NOT EXISTS idx_channel_metrics_project_date ON channel_metrics(project_id, date);
+CREATE INDEX IF NOT EXISTS idx_channel_metrics_channel ON channel_metrics(channel);
 
 -- Row Level Security (RLS)
 ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
@@ -260,6 +282,7 @@ ALTER TABLE metrics ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE optimization_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE ai_reports ENABLE ROW LEVEL SECURITY;
+ALTER TABLE channel_metrics ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies (基本ポリシー)
 CREATE POLICY "Users can view their organization" ON organizations

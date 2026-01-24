@@ -9,6 +9,7 @@ import {
   FileText,
   BarChart3,
   Settings,
+  Layers,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -17,6 +18,7 @@ const navigation = [
   { name: "キャンペーン", href: "/campaigns", icon: Megaphone },
   { name: "クリエイティブ", href: "/creatives", icon: Image },
   { name: "ランディングページ", href: "/landing-pages", icon: FileText },
+  { name: "マルチチャネル", href: "/multichannel", icon: Layers },
   { name: "レポート", href: "/reports", icon: BarChart3 },
   { name: "設定", href: "/settings", icon: Settings },
 ]
