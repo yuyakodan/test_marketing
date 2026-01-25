@@ -1,4 +1,9 @@
+import type { Metadata } from "next"
 import Link from "next/link"
+
+export const metadata: Metadata = {
+  title: "ランディングページ",
+}
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Plus, ExternalLink, Copy, MoreHorizontal, Eye } from "lucide-react"

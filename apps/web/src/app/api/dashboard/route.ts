@@ -1,8 +1,41 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 
+// エラーコード定義
+const ERROR_CODES = {
+  SUPABASE_NOT_CONFIGURED: 'SUPABASE_NOT_CONFIGURED',
+  DATABASE_ERROR: 'DATABASE_ERROR',
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+} as const
+
+// エラーメッセージ定義
+const ERROR_MESSAGES = {
+  [ERROR_CODES.SUPABASE_NOT_CONFIGURED]: 'データベースに接続されていません。Supabaseの設定を確認してください。',
+  [ERROR_CODES.DATABASE_ERROR]: 'データベースエラーが発生しました。しばらく経ってから再度お試しください。',
+  [ERROR_CODES.UNKNOWN_ERROR]: '予期しないエラーが発生しました。',
+}
+
+// Supabase接続チェック
+function isSupabaseConfigured(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  return !!(url && key && !url.includes('placeholder'))
+}
+
 export async function GET(request: Request) {
   try {
+    // Supabase接続チェック
+    if (!isSupabaseConfigured()) {
+      return NextResponse.json(
+        {
+          success: false,
+          errorCode: ERROR_CODES.SUPABASE_NOT_CONFIGURED,
+          error: ERROR_MESSAGES[ERROR_CODES.SUPABASE_NOT_CONFIGURED],
+        },
+        { status: 503 }
+      )
+    }
+
     const supabase = await createClient()
     const { searchParams } = new URL(request.url)
     const projectId = searchParams.get('project_id')
@@ -144,10 +177,50 @@ export async function GET(request: Request) {
     })
   } catch (error) {
     console.error('Failed to fetch dashboard data:', error)
+
+    // エラーの種類を判定
+    const errorMessage = error instanceof Error ? error.message : ''
+
+    // Supabase関連のエラーを検知
+    if (
+      errorMessage.includes('FetchError') ||
+      errorMessage.includes('ENOTFOUND') ||
+      errorMessage.includes('placeholder') ||
+      errorMessage.includes('Invalid URL') ||
+      errorMessage.includes('Invalid API key')
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          errorCode: ERROR_CODES.SUPABASE_NOT_CONFIGURED,
+          error: ERROR_MESSAGES[ERROR_CODES.SUPABASE_NOT_CONFIGURED],
+        },
+        { status: 503 }
+      )
+    }
+
+    // データベースエラー
+    if (
+      errorMessage.includes('relation') ||
+      errorMessage.includes('permission') ||
+      errorMessage.includes('PGRST')
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          errorCode: ERROR_CODES.DATABASE_ERROR,
+          error: ERROR_MESSAGES[ERROR_CODES.DATABASE_ERROR],
+        },
+        { status: 500 }
+      )
+    }
+
+    // その他のエラー
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
+        errorCode: ERROR_CODES.UNKNOWN_ERROR,
+        error: ERROR_MESSAGES[ERROR_CODES.UNKNOWN_ERROR],
       },
       { status: 500 }
     )

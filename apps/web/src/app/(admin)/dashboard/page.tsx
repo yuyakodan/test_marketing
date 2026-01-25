@@ -4,7 +4,53 @@ import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatCurrency, formatNumber, formatPercent } from "@/lib/utils"
-import { TrendingUp, TrendingDown, DollarSign, Users, MousePointer, Target, RefreshCw } from "lucide-react"
+import { TrendingUp, TrendingDown, DollarSign, Users, MousePointer, Target, RefreshCw, AlertTriangle, Database, WifiOff } from "lucide-react"
+
+// エラーコード定義（APIと同期）
+const ERROR_CODES = {
+  SUPABASE_NOT_CONFIGURED: 'SUPABASE_NOT_CONFIGURED',
+  DATABASE_ERROR: 'DATABASE_ERROR',
+  UNKNOWN_ERROR: 'UNKNOWN_ERROR',
+  NETWORK_ERROR: 'NETWORK_ERROR',
+} as const
+
+type ErrorCode = typeof ERROR_CODES[keyof typeof ERROR_CODES]
+
+interface ErrorInfo {
+  code: ErrorCode
+  message: string
+  icon: typeof AlertTriangle
+}
+
+// エラー情報マッピング
+const getErrorInfo = (errorCode: ErrorCode | null, errorMessage: string): ErrorInfo => {
+  switch (errorCode) {
+    case ERROR_CODES.SUPABASE_NOT_CONFIGURED:
+      return {
+        code: errorCode,
+        message: 'データベースに接続されていません。Supabaseの設定を確認してください。',
+        icon: Database,
+      }
+    case ERROR_CODES.DATABASE_ERROR:
+      return {
+        code: errorCode,
+        message: 'データベースエラーが発生しました。しばらく経ってから再度お試しください。',
+        icon: AlertTriangle,
+      }
+    case ERROR_CODES.NETWORK_ERROR:
+      return {
+        code: errorCode,
+        message: 'ネットワークエラーが発生しました。接続を確認してください。',
+        icon: WifiOff,
+      }
+    default:
+      return {
+        code: ERROR_CODES.UNKNOWN_ERROR,
+        message: errorMessage || '予期しないエラーが発生しました。',
+        icon: AlertTriangle,
+      }
+  }
+}
 
 interface DashboardData {
   summary: {
@@ -39,22 +85,28 @@ interface DashboardData {
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null)
   const [dateRange, setDateRange] = useState<7 | 14 | 30>(7)
 
   const fetchData = async () => {
     setLoading(true)
-    setError(null)
+    setErrorInfo(null)
     try {
       const response = await fetch(`/api/dashboard?days=${dateRange}`)
       const result = await response.json()
       if (result.success) {
         setData(result.data)
       } else {
-        setError(result.error)
+        // APIからのエラーコードに基づいてエラー情報を設定
+        setErrorInfo(getErrorInfo(result.errorCode, result.error))
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "データの取得に失敗しました")
+      // ネットワークエラーなどのfetch自体の失敗
+      if (err instanceof TypeError && err.message.includes('fetch')) {
+        setErrorInfo(getErrorInfo(ERROR_CODES.NETWORK_ERROR, ''))
+      } else {
+        setErrorInfo(getErrorInfo(null, err instanceof Error ? err.message : 'データの取得に失敗しました'))
+      }
     } finally {
       setLoading(false)
     }
@@ -142,9 +194,17 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 text-sm text-red-600">
-          {error}
+      {errorInfo && (
+        <div className="rounded-md bg-red-500 p-4 text-sm text-white flex items-center gap-3">
+          <errorInfo.icon className="h-5 w-5 flex-shrink-0" />
+          <div>
+            <p className="font-medium">{errorInfo.message}</p>
+            {errorInfo.code === ERROR_CODES.SUPABASE_NOT_CONFIGURED && (
+              <p className="text-red-100 text-xs mt-1">
+                環境変数 NEXT_PUBLIC_SUPABASE_URL と NEXT_PUBLIC_SUPABASE_ANON_KEY を設定してください。
+              </p>
+            )}
+          </div>
         </div>
       )}
 
